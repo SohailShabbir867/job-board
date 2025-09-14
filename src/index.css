@@ -1,7 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* base styles */
-html, body, #root { height: 100%; }
-body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+body{
+  background-image: url("https://t4.ftcdn.net/jpg/09/02/53/81/360_F_902538150_JCEcejSQkRHHR7d5jE1nbmfhXHdcd9E3.jpg");
+  backdrop-filter: blur(2px)   ;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
