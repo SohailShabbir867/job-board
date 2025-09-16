@@ -24,6 +24,8 @@ function App() {
         <div className="flex flex-col min-h-screen">
           {/* Navbar always on top */}
           <Navbar />
+          
+          
 
           {/* Main Content */}
           <main className="flex-grow w-full p-0">
@@ -37,6 +39,9 @@ function App() {
               {/* Auth Pages */}
               <Route path="/signin" element={<SignIn />} />
               <Route path="/register" element={<Register />} />
+
+              {/* Fallback: ensure Home shows on first load / unknown routes */}
+              <Route path="*" element={<Home />} />
             </Routes>
           </main>
 

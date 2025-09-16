@@ -2,6 +2,6 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  base: '/job.board/',   // 👈 repo name goes here
   plugins: [react()],
+  base: '/job-board/',   // 👈 Must match EXACT repo name (case + dot)
 })

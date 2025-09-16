@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // import AuthContext
+import { useAuth } from "../context/AuthContext"; // import AuthContex
+
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -31,11 +32,12 @@ export default function Navbar() {
     }`;
 
   return (
+    <>
     <header className="sticky top-0 z-40 bg-[#050b1b] text-slate-100 shadow">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#1E3A8A] to-[#2563EB] flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#1e3a8a] to-[#2563EB] flex items-center justify-center">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path
                 d="M12 3C8 3 3 7 3 11s5 8 9 9c4-1 9-5 9-9s-5-8-9-8z"
@@ -220,7 +222,11 @@ export default function Navbar() {
             )}
           </div>
         </div>
-      </div>
+     
+      </div>  
+    
     </header>
+   
+    </>
   );
 }
