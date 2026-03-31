@@ -1,74 +1,57 @@
-// src/utils/auth.js
-const USERS_KEY = "jobboard_users_v1";
-const CURRENT_KEY = "jobboard_current_user_v1";
+/**
+ * @file src/utils/auth.js
+ * @description Legacy client-side auth utilities stub — kept for historical reference.
+ *
+ * ⚠️  DEPRECATED: This file is NOT used anywhere in the application.
+ *      The production application uses JWT-based authentication via the
+ *      Express/MongoDB backend. See src/api/auth.js and AuthContext.jsx.
+ *
+ * The original frontend-only implementation stored user accounts entirely in
+ * localStorage. That approach was removed during the MERN migration because:
+ *  - Plain-text passwords cannot be stored safely in a browser
+ *  - Data was isolated to a single browser/device
+ *  - There was no real server-side authorisation
+ *
+ * All auth actions are now handled by:
+ *  - Backend: backend/routes/auth.js (bcrypt hashing, JWT issuance)
+ *  - Frontend context: src/context/AuthContext.jsx
+ *  - Frontend API layer: src/api/auth.js
+ */
 
-function _readUsers() {
-  try {
-    const raw = localStorage.getItem(USERS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-function _writeUsers(users) {
-  try {
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-export function registerUser({ name, email, password }) {
-  if (!name || !email || !password) {
-    throw new Error("All fields are required");
-  }
-  const users = _readUsers();
-  const exists = users.some(u => u.email.toLowerCase() === email.toLowerCase());
-  if (exists) throw new Error("Email already registered");
-  const newUser = {
-    id: `user-${Date.now()}`,
-    name,
-    email: email.toLowerCase(),
-    password, // NOTE: plain text for demo only
-    createdAt: new Date().toISOString(),
-  };
-  users.unshift(newUser);
-  _writeUsers(users);
-  return { ...newUser, password: undefined };
-}
-
-export function loginUser(email, password) {
-  const users = _readUsers();
-  const user = users.find(
-    u => u.email.toLowerCase() === String(email).toLowerCase() && u.password === password
+/**
+ * @deprecated Authentication is now handled by the Express backend with bcrypt +
+ *   JWT. Do not use or re-introduce localStorage-based auth.
+ *
+ * Stub exported so any accidental import does not cause a runtime crash.
+ */
+export function registerUser() {
+  throw new Error(
+    'registerUser() is deprecated. Use AuthContext.register() instead.'
   );
-  if (!user) throw new Error("Invalid email or password");
-  // store session
-  const safe = { id: user.id, name: user.name, email: user.email };
-  try {
-    localStorage.setItem(CURRENT_KEY, JSON.stringify(safe));
-  } catch {
-    // ignore storage errors
-  }
-  return safe;
 }
 
+/**
+ * @deprecated Authentication is now handled by the Express backend with bcrypt +
+ *   JWT. Do not use or re-introduce localStorage-based auth.
+ */
+export function loginUser() {
+  throw new Error(
+    'loginUser() is deprecated. Use AuthContext.login() instead.'
+  );
+}
+
+/**
+ * @deprecated Use AuthContext.logout() instead.
+ */
 export function logout() {
-  try {
-    localStorage.removeItem(CURRENT_KEY);
-  } catch {
-    // ignore storage errors
-  }
+  throw new Error('logout() is deprecated. Use AuthContext.logout() instead.');
 }
 
+/**
+ * @deprecated Use AuthContext.useAuth().user instead.
+ */
 export function getCurrentUser() {
-  try {
-    const raw = localStorage.getItem(CURRENT_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    // ignore storage errors
-    return null;
-  }
+  throw new Error(
+    'getCurrentUser() is deprecated. Use the useAuth() hook instead.'
+  );
 }
