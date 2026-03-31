@@ -1,76 +1,80 @@
-// src/pages/JobDetails.jsx
+// src/pages/JobsDetail.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { loadSavedJobs, addSavedJob, removeSavedJob, isJobSaved } from "../utils/savedJobs";
+import { getJob } from "../api/jobs";
+import { saveJob, unsaveJob, getSavedJobs } from "../api/saved";
+import { useAuth } from "../context/AuthContext";
+import { useJobs } from "../context/JobsContext";
 
-const LOCAL_POSTS_KEY = "postedJobs";
-const SESSION_API_KEY = "lastApiJobs";
-
-function loadPosted() {
-  try {
-    const raw = localStorage.getItem(LOCAL_POSTS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-export default function JobDetails() {
+export default function JobsDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { removeJob } = useJobs();
   const [job, setJob] = useState(null);
   const [savedFlag, setSavedFlag] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const posted = loadPosted();
-    const local = posted.find((j) => String(j.id) === String(id));
-    if (local) {
-      setJob(local);
-      setSavedFlag(isJobSaved(local.id));
-      return;
-    }
-
-    // look up cached API jobs
-    try {
-      const raw = sessionStorage.getItem(SESSION_API_KEY);
-      if (raw) {
-        const apiList = JSON.parse(raw);
-        const found = apiList.find((j) => String(j.id) === String(id));
-        if (found) {
-          setJob(found);
-          setSavedFlag(isJobSaved(found.id));
-          return;
+    getJob(id)
+      .then((data) => {
+        setJob(data);
+        if (user) {
+          getSavedJobs()
+            .then((list) => setSavedFlag(list.some((j) => String(j._id) === String(data._id))))
+            .catch(() => {});
         }
-      }
-    } catch (e) {
-      // ignore
+      })
+      .catch(() => setError("Job not found"))
+      .finally(() => setLoading(false));
+  }, [id, user]);
+
+  async function toggleSave() {
+    if (!user) { navigate("/signin"); return; }
+    if (savedFlag) {
+      await unsaveJob(job._id);
+      setSavedFlag(false);
+    } else {
+      await saveJob(job._id);
+      setSavedFlag(true);
     }
+  }
 
-    // not found
-    setJob(null);
-  }, [id]);
+  async function handleDelete() {
+    if (!window.confirm("Delete your post?")) return;
+    try {
+      await removeJob(job._id);
+      navigate("/jobs");
+    } catch (err) {
+      alert(err.message || "Failed to delete");
+    }
+  }
 
-  if (!job) {
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2563EB]" />
+      </div>
+    );
+  }
+
+  if (error || !job) {
     return (
       <div className="max-w-3xl mx-auto p-6">
         <div className="bg-white p-6 rounded shadow text-center">
           <h2 className="text-xl font-bold mb-3">Job not found</h2>
-          <p className="mb-4 text-gray-600">The job might have been removed or was from a previous API fetch.</p>
-          <button onClick={() => navigate("/jobs")} className="bg-[#2563EB] text-white px-4 py-2 rounded">Back to Jobs</button>
+          <p className="mb-4 text-gray-600">The job might have been removed.</p>
+          <button onClick={() => navigate("/jobs")} className="bg-[#2563EB] text-white px-4 py-2 rounded">
+            Back to Jobs
+          </button>
         </div>
       </div>
     );
   }
 
-  function toggleSave() {
-    if (isJobSaved(job.id)) {
-      removeSavedJob(job.id);
-      setSavedFlag(false);
-    } else {
-      addSavedJob(job);
-      setSavedFlag(true);
-    }
-  }
+  const isOwner = user && job.postedBy &&
+    (String(job.postedBy._id || job.postedBy) === String(user.id));
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -84,31 +88,44 @@ export default function JobDetails() {
           <div className="md:col-span-2 space-y-4">
             <h3 className="font-semibold text-gray-700">Job Description</h3>
             <p className="text-gray-600">{job.description}</p>
+            {job.tags && job.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {job.tags.map((t, i) => (
+                  <span key={i} className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs">{t}</span>
+                ))}
+              </div>
+            )}
           </div>
 
           <aside className="space-y-4">
             <div className="bg-gray-50 p-4 rounded">
               <h4 className="font-semibold text-gray-700">Company</h4>
               <p className="text-sm text-gray-800">{job.company}</p>
+              <p className="text-xs text-gray-500 mt-2">Location</p>
+              <p className="text-sm text-gray-800">{job.location}</p>
+              <p className="text-xs text-gray-500 mt-2">Type</p>
+              <p className="text-sm text-gray-800">{job.type}</p>
               <p className="text-xs text-gray-500 mt-2">Salary</p>
               <p className="text-sm text-gray-800">{job.salary || "—"}</p>
             </div>
 
             <div className="space-y-2">
-              <button className="w-full bg-[#2563EB] text-white py-2 rounded">Apply Now</button>
-              <button onClick={toggleSave} className={`w-full py-2 rounded ${savedFlag ? 'bg-green-200 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+              <button
+                onClick={toggleSave}
+                className={`w-full py-2 rounded ${savedFlag ? "bg-green-200 text-green-700" : "bg-gray-100 text-gray-700"}`}
+              >
                 {savedFlag ? "Saved ✓" : "Save for later"}
               </button>
 
-              {String(job.id).startsWith("local-") && (
-                <button onClick={() => {
-                  if (!confirm("Delete your post?")) return;
-                  const arr = loadPosted().filter(j => j.id !== job.id);
-                  localStorage.setItem(LOCAL_POSTS_KEY, JSON.stringify(arr));
-                  window.dispatchEvent(new Event("storage"));
-                  navigate("/jobs");
-                }} className="w-full bg-red-100 text-red-700 py-2 rounded">Delete post</button>
+              {isOwner && (
+                <button onClick={handleDelete} className="w-full bg-red-100 text-red-700 py-2 rounded">
+                  Delete post
+                </button>
               )}
+
+              <button onClick={() => navigate("/jobs")} className="w-full bg-gray-200 text-gray-700 py-2 rounded">
+                ← Back to Jobs
+              </button>
             </div>
           </aside>
         </div>

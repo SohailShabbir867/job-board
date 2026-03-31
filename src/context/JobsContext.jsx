@@ -1,44 +1,70 @@
 // src/context/JobsContext.jsx
-import React, { createContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useEffect,
+  useState,
+  useCallback,
+  useContext,
+} from "react";
+import {
+  getJobs,
+  createJob as apiCreateJob,
+  deleteJob as apiDeleteJob,
+} from "../api/jobs";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const JobsContext = createContext({
-  postedJobs: [],
-  addPostedJob: () => {},
-  removePostedJob: () => {}
+  jobs: [],
+  loading: false,
+  error: null,
+  fetchJobs: () => {},
+  addJob: async () => {},
+  removeJob: async () => {},
 });
 
-const LOCAL_KEY = "jobfinder_posted_jobs_v1";
-
 export function JobsProvider({ children }) {
-  const [postedJobs, setPostedJobs] = useState(() => {
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const fetchJobs = useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
-      const raw = localStorage.getItem(LOCAL_KEY);
-      return raw ? JSON.parse(raw) : [];
-    } catch {
-      return [];
+      const data = await getJobs();
+      setJobs(data);
+    } catch (err) {
+      setError(err.message || "Failed to load jobs");
+    } finally {
+      setLoading(false);
     }
-  });
+  }, []);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(LOCAL_KEY, JSON.stringify(postedJobs));
-    } catch (e) {
-      console.error("Failed to persist posted jobs", e);
-    }
-  }, [postedJobs]);
+    fetchJobs();
+  }, [fetchJobs]);
 
-  const addPostedJob = (job) => {
-    // put newest first
-    setPostedJobs((prev) => [job, ...prev]);
+  const addJob = async (jobData) => {
+    const newJob = await apiCreateJob(jobData);
+    setJobs((prev) => [newJob, ...prev]);
+    return newJob;
   };
 
-  const removePostedJob = (jobId) => {
-    setPostedJobs((prev) => prev.filter((j) => j.id !== jobId));
+  const removeJob = async (jobId) => {
+    await apiDeleteJob(jobId);
+    setJobs((prev) => prev.filter((j) => j._id !== jobId));
   };
 
   return (
-    <JobsContext.Provider value={{ postedJobs, addPostedJob, removePostedJob }}>
+    <JobsContext.Provider
+      value={{ jobs, loading, error, fetchJobs, addJob, removeJob }}
+    >
       {children}
     </JobsContext.Provider>
   );
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function useJobs() {
+  return useContext(JobsContext);
 }

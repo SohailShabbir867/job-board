@@ -10,7 +10,7 @@ import Jobs from "./pages/Jobs";
 import JobDetails from "./pages/JobDetails";
 import PostJob from "./pages/PostJob";
 import Saved from "./pages/Saved";
-import SignIn from "./pages/SignIn";
+import SignIn from "./pages/signIn";
 import Register from "./pages/Register";
 
 // Context Providers
@@ -24,8 +24,6 @@ function App() {
         <div className="flex flex-col min-h-screen">
           {/* Navbar always on top */}
           <Navbar />
-          
-          
 
           {/* Main Content */}
           <main className="flex-grow w-full p-0">
@@ -40,7 +38,7 @@ function App() {
               <Route path="/signin" element={<SignIn />} />
               <Route path="/register" element={<Register />} />
 
-              {/* Fallback: ensure Home shows on first load / unknown routes */}
+              {/* Fallback */}
               <Route path="*" element={<Home />} />
             </Routes>
           </main>

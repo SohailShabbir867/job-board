@@ -1,10 +1,11 @@
 // src/pages/Register.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { registerUser } from "../utils/auth";
+import { useAuth } from "../context/AuthContext";
 
 export default function Register() {
   const navigate = useNavigate();
+  const { register } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -14,7 +15,6 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // handle input changes
   function handleChange(e) {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -26,7 +26,6 @@ export default function Register() {
 
     const { name, email, password, pwConfirm } = formData;
 
-    // validations
     if (!name || !email || !password || !pwConfirm) {
       setError("Please fill all required fields.");
       return;
@@ -42,13 +41,12 @@ export default function Register() {
 
     setLoading(true);
     try {
-      // call auth helper
-      registerUser({ name: name.trim(), email: email.trim(), password });
-      setLoading(false);
-      navigate("/signin", { replace: true });
+      await register({ name: name.trim(), email: email.trim(), password });
+      navigate("/", { replace: true });
     } catch (err) {
-      setLoading(false);
       setError(err.message || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -120,7 +118,10 @@ export default function Register() {
             </button>
           </form>
 
-          <div className="mt-6 text-sm text-gray-300">Already have an account? <Link to="/signin" className="text-[#60a5fa] hover:underline">Sign in</Link></div>
+          <div className="mt-6 text-sm text-gray-300">
+            Already have an account?{" "}
+            <Link to="/signin" className="text-[#60a5fa] hover:underline">Sign in</Link>
+          </div>
         </div>
       </div>
     </div>

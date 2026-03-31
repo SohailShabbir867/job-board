@@ -6,8 +6,23 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
   globalIgnores(['dist']),
+  // Backend + config files: Node.js CommonJS files
   {
-    files: ['**/*.{js,jsx}'],
+    files: ['backend/**/*.{js,cjs}', 'tailwind.config.js', 'tailwind.config.cjs', 'postcss.config.js'],
+    extends: [js.configs.recommended],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.node,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'commonjs',
+      },
+    },
+  },
+  // Frontend: React + ESM files
+  {
+    files: ['src/**/*.{js,jsx}', '*.{js,jsx}'],
+    ignores: ['backend/**'],
     extends: [
       js.configs.recommended,
       reactHooks.configs['recommended-latest'],

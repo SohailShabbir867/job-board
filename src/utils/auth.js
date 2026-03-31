@@ -49,14 +49,18 @@ export function loginUser(email, password) {
   const safe = { id: user.id, name: user.name, email: user.email };
   try {
     localStorage.setItem(CURRENT_KEY, JSON.stringify(safe));
-  } catch {}
+  } catch {
+    // ignore storage errors
+  }
   return safe;
 }
 
 export function logout() {
   try {
     localStorage.removeItem(CURRENT_KEY);
-  } catch {}
+  } catch {
+    // ignore storage errors
+  }
 }
 
 export function getCurrentUser() {
@@ -64,6 +68,7 @@ export function getCurrentUser() {
     const raw = localStorage.getItem(CURRENT_KEY);
     return raw ? JSON.parse(raw) : null;
   } catch {
+    // ignore storage errors
     return null;
   }
 }
