@@ -27,7 +27,7 @@ import "./index.css"; // Ensure global styles are available (also imported in ma
 // ── Page Components ───────────────────────────────────────────────────────────
 import Home from "./pages/Home";
 import Jobs from "./pages/Jobs";
-import JobDetails from "./pages/JobDetails";
+import JobsDetail from "./pages/JobsDetail";
 import PostJob from "./pages/PostJob";
 import Saved from "./pages/Saved";
 import SignIn from "./pages/signIn";
@@ -66,7 +66,7 @@ function App() {
               {/* Public routes — accessible to everyone */}
               <Route path="/" element={<Home />} />
               <Route path="/jobs" element={<Jobs />} />
-              <Route path="/jobs/:id" element={<JobDetails />} />
+              <Route path="/jobs/:id" element={<JobsDetail />} />
 
               {/* Semi-protected routes — accessible but with auth prompts */}
               <Route path="/post-job" element={<PostJob />} />
