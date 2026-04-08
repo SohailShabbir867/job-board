@@ -28,7 +28,7 @@ function Footer() {
       <div className="container mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Brand Section */}
         <div>
-          <h2 className="text-2xl font-bold text-white">JobFinder</h2>
+          <h2 className="text-2xl font-bold text-white">JobBoard</h2>
           <p className="mt-3 text-sm text-gray-400">
             Find your dream job or post opportunities.  
             Built with modern tech for the future of work.
@@ -50,10 +50,10 @@ function Footer() {
         <div>
           <h3 className="text-lg font-semibold text-white mb-3">Resources</h3>
           <ul className="space-y-2">
-            <li><a href="#" className="hover:text-[#2563EB]">Help Center</a></li>
-            <li><a href="#" className="hover:text-[#2563EB]">FAQs</a></li>
-            <li><a href="#" className="hover:text-[#2563EB]">Privacy Policy</a></li>
-            <li><a href="#" className="hover:text-[#2563EB]">Terms & Conditions</a></li>
+            <li><Link to="/jobs" className="hover:text-[#2563EB]">Find Jobs</Link></li>
+            <li><Link to="/post-job" className="hover:text-[#2563EB]">Post Opportunities</Link></li>
+            <li><Link to="/saved" className="hover:text-[#2563EB]">Saved Jobs</Link></li>
+            <li><Link to="/signin" className="hover:text-[#2563EB]">Account Sign In</Link></li>
           </ul>
         </div>
 
@@ -76,7 +76,7 @@ function Footer() {
 
       {/* Bottom Bar */}
       <div className="border-t border-white/10 py-4 text-center text-sm text-gray-400">
-        © {new Date().getFullYear()} JobFinder. All rights reserved.
+        © {new Date().getFullYear()} JobBoard. All rights reserved.
       </div>
     </footer>
   );
